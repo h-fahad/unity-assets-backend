@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum BillingCycle {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  isActive  Boolean  @default(true)
+  resetToken String?
+  resetTokenExpiry DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  userSubscriptions UserSubscription[]
+  assets    Asset[]
+  downloads Download[]
+
+  @@map("users")
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  slug        String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  assets Asset[]
+
+  @@map("categories")
+}
+
+model SubscriptionPlan {
+  id                 Int                @id @default(autoincrement())
+  name               String
+  description        String?
+  basePrice          Float
+  billingCycle       BillingCycle       @default(MONTHLY)
+  yearlyDiscount     Float              @default(0) // percentage discount for yearly
+  dailyDownloadLimit Int                @default(0)
+  features           String[]           @default([])
+  isActive           Boolean            @default(true)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  
+  userSubscriptions UserSubscription[]
+  
+  @@map("subscription_plans")
+}
+
+model UserSubscription {
+  id                    Int      @id @default(autoincrement())
+  userId                Int
+  planId                Int
+  startDate             DateTime
+  endDate               DateTime
+  isActive              Boolean  @default(true)
+  stripeSubscriptionId  String?  @unique
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  user User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan SubscriptionPlan @relation(fields: [planId], references: [id])
+  
+  @@unique([userId, planId, startDate])
+  @@map("user_subscriptions")
+}
+
+model Asset {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String
+  price        Float    @default(0)
+  fileUrl      String
+  thumbnail    String?
+  tags         String[] @default([])
+  isActive     Boolean  @default(true)
+  downloadCount Int     @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  categoryId   Int
+  uploadedById Int
+  
+  category   Category @relation(fields: [categoryId], references: [id])
+  uploadedBy User     @relation(fields: [uploadedById], references: [id])
+  downloads  Download[]
+  
+  @@unique([name, uploadedById])
+  @@map("assets")
+}
+
+model Download {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  assetId      Int
+  downloadedAt DateTime @default(now())
+  ipAddress    String?
+  userAgent    String?
+  
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, downloadedAt])
+  @@index([assetId])
+  @@map("downloads")
+}
+
+model Analytics {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @default(now()) @db.Date
+  metric    String
+  value     Int
+  metadata  Json?
+  createdAt DateTime @default(now())
+  
+  @@unique([date, metric])
+  @@map("analytics")
+} 

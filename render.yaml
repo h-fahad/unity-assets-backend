@@ -5,7 +5,7 @@ services:
     plan: starter
     rootDir: unity-assets-backend
     buildCommand: npm install && npx prisma generate && npx prisma db push && npm run build
-    startCommand: npm run start:prod
+    startCommand: node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production

@@ -3,6 +3,7 @@ services:
     name: unity-assets-backend
     env: node
     plan: starter
+    rootDir: unity-assets-backend
     buildCommand: npm install && npx prisma generate && npm run build
     startCommand: npm run start:prod
     envVars:

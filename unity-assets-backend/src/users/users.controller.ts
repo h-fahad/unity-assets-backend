@@ -44,8 +44,12 @@ export class UsersController {
     const shouldIncludeInactive = includeInactive === 'true';
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 50;
-    
-    return this.usersService.findAll(shouldIncludeInactive, pageNumber, limitNumber);
+
+    return this.usersService.findAll(
+      shouldIncludeInactive,
+      pageNumber,
+      limitNumber,
+    );
   }
 
   @Get('search')
@@ -57,7 +61,7 @@ export class UsersController {
     @Query('limit') limit?: string,
   ) {
     const pageNumber = page ? parseInt(page, 10) : 1;
-    const limitNumber = limit ? parseInt(limit, 10) : 20;    
+    const limitNumber = limit ? parseInt(limit, 10) : 20;
     return this.usersService.searchUsers(query, pageNumber, limitNumber);
   }
 
@@ -89,12 +93,9 @@ export class UsersController {
   }
 
   @Patch('profile')
-  async updateProfile(
-    @Body() dto: UpdateUserDto,
-    @Req() req: AuthRequest,
-  ) {
+  async updateProfile(@Body() dto: UpdateUserDto, @Req() req: AuthRequest) {
     const userId = req.user.id;
-    const currentUser = { id: userId, role: req.user.role as Role };
+    const currentUser = { id: userId, role: req.user.role };
     return this.usersService.update(userId, dto, currentUser);
   }
 
@@ -104,9 +105,9 @@ export class UsersController {
     @Body() dto: UpdateUserDto,
     @Req() req: AuthRequest,
   ) {
-    const currentUser = { 
-      id: req.user.id, 
-      role: req.user.role 
+    const currentUser = {
+      id: req.user.id,
+      role: req.user.role,
     };
     return this.usersService.update(id, dto, currentUser);
   }
@@ -138,13 +139,10 @@ export class UsersController {
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
-  async remove(
-    @Param('id', ParseIntPipe) id: number,
-    @Req() req: AuthRequest,
-  ) {
-    const currentUser = { 
-      id: req.user.id, 
-      role: req.user.role 
+  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: AuthRequest) {
+    const currentUser = {
+      id: req.user.id,
+      role: req.user.role,
     };
     return this.usersService.remove(id, currentUser);
   }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
 import { CreateSubscriptionPlanDto } from './dto/create-subscription-plan.dto';
 import { UpdateSubscriptionPlanDto } from './dto/update-subscription-plan.dto';
@@ -67,7 +71,7 @@ export class SubscriptionsService {
 
   async deletePlan(id: number) {
     const plan = await this.findPlan(id);
-    
+
     const activeSubscriptions = await this.prisma.userSubscription.count({
       where: {
         planId: id,
@@ -77,7 +81,9 @@ export class SubscriptionsService {
     });
 
     if (activeSubscriptions > 0) {
-      throw new ConflictException('Cannot delete plan with active subscriptions');
+      throw new ConflictException(
+        'Cannot delete plan with active subscriptions',
+      );
     }
 
     return this.prisma.subscriptionPlan.delete({ where: { id } });
@@ -102,13 +108,14 @@ export class SubscriptionsService {
     });
     if (!user) throw new NotFoundException('User not found or inactive');
 
-    const existingActiveSubscription = await this.prisma.userSubscription.findFirst({
-      where: {
-        userId: dto.userId,
-        isActive: true,
-        endDate: { gt: new Date() },
-      },
-    });
+    const existingActiveSubscription =
+      await this.prisma.userSubscription.findFirst({
+        where: {
+          userId: dto.userId,
+          isActive: true,
+          endDate: { gt: new Date() },
+        },
+      });
 
     if (existingActiveSubscription) {
       await this.prisma.userSubscription.update({
@@ -119,7 +126,7 @@ export class SubscriptionsService {
 
     const startDate = dto.startDate ? new Date(dto.startDate) : new Date();
     const endDate = new Date(startDate);
-    
+
     switch (plan.billingCycle) {
       case 'WEEKLY':
         endDate.setDate(endDate.getDate() + 7);
@@ -220,7 +227,7 @@ export class SubscriptionsService {
   }
 
   async getSubscriptionStats() {
-    const [active, expired, total, revenue] = await Promise.all([
+    const [active, expired, total, revenue, totalDownloads] = await Promise.all([
       this.prisma.userSubscription.count({
         where: {
           isActive: true,
@@ -229,14 +236,12 @@ export class SubscriptionsService {
       }),
       this.prisma.userSubscription.count({
         where: {
-          OR: [
-            { isActive: false },
-            { endDate: { lte: new Date() } },
-          ],
+          OR: [{ isActive: false }, { endDate: { lte: new Date() } }],
         },
       }),
       this.prisma.userSubscription.count(),
       this.calculateTotalRevenue(),
+      this.prisma.download.count(),
     ]);
 
     return {
@@ -244,6 +249,7 @@ export class SubscriptionsService {
       expired,
       total,
       revenue,
+      totalDownloads,
     };
   }
 
@@ -255,10 +261,9 @@ export class SubscriptionsService {
     return subscriptions.reduce((total, sub) => {
       const price = sub.plan.basePrice;
       const discount = sub.plan.yearlyDiscount / 100;
-      const finalPrice = sub.plan.billingCycle === 'YEARLY' 
-        ? price * (1 - discount) 
-        : price;
+      const finalPrice =
+        sub.plan.billingCycle === 'YEARLY' ? price * (1 - discount) : price;
       return total + finalPrice;
     }, 0);
   }
-} 
+}

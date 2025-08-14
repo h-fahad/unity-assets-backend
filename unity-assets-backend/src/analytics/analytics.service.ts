@@ -64,11 +64,11 @@ export class AnalyticsService {
       const date = new Date(startDate);
       date.setDate(date.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
-      
-      const dayDownloads = downloads.filter(d => 
-        d.downloadedAt.toISOString().split('T')[0] === dateStr
+
+      const dayDownloads = downloads.filter(
+        (d) => d.downloadedAt.toISOString().split('T')[0] === dateStr,
       );
-      
+
       dailyDownloads.push({
         date: dateStr,
         downloads: dayDownloads.reduce((sum, d) => sum + d._count.id, 0),
@@ -132,7 +132,7 @@ export class AnalyticsService {
           ...stat,
           plan,
         };
-      })
+      }),
     );
 
     return {
@@ -149,23 +149,28 @@ export class AnalyticsService {
     const lastMonth = new Date(currentMonth);
     lastMonth.setMonth(lastMonth.getMonth() - 1);
 
-    const [currentMonthRevenue, lastMonthRevenue, totalRevenue] = await Promise.all([
-      this.calculateRevenue(currentMonth, new Date()),
-      this.calculateRevenue(lastMonth, currentMonth),
-      this.calculateRevenue(new Date('2020-01-01'), new Date()),
-    ]);
+    const [currentMonthRevenue, lastMonthRevenue, totalRevenue] =
+      await Promise.all([
+        this.calculateRevenue(currentMonth, new Date()),
+        this.calculateRevenue(lastMonth, currentMonth),
+        this.calculateRevenue(new Date('2020-01-01'), new Date()),
+      ]);
 
     return {
       currentMonth: currentMonthRevenue,
       lastMonth: lastMonthRevenue,
       total: totalRevenue,
-      growth: lastMonthRevenue > 0 
-        ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 
-        : 0,
+      growth:
+        lastMonthRevenue > 0
+          ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+          : 0,
     };
   }
 
-  private async calculateRevenue(startDate: Date, endDate: Date): Promise<number> {
+  private async calculateRevenue(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
     const subscriptions = await this.prisma.userSubscription.findMany({
       where: {
         createdAt: {
@@ -181,9 +186,8 @@ export class AnalyticsService {
     return subscriptions.reduce((total, sub) => {
       const price = sub.plan.basePrice;
       const discount = sub.plan.yearlyDiscount / 100;
-      const finalPrice = sub.plan.billingCycle === 'YEARLY' 
-        ? price * (1 - discount) 
-        : price;
+      const finalPrice =
+        sub.plan.billingCycle === 'YEARLY' ? price * (1 - discount) : price;
       return total + finalPrice;
     }, 0);
   }

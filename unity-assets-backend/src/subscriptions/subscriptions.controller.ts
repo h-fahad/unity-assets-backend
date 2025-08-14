@@ -11,7 +11,12 @@ import {
   Req,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { SubscriptionsService } from './subscriptions.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -99,7 +104,10 @@ export class SubscriptionsController {
   ) {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 50;
-    return this.subscriptionsService.getAllUserSubscriptions(pageNumber, limitNumber);
+    return this.subscriptionsService.getAllUserSubscriptions(
+      pageNumber,
+      limitNumber,
+    );
   }
 
   @Get('my-subscriptions')
@@ -120,6 +128,15 @@ export class SubscriptionsController {
     return this.subscriptionsService.getActiveUserSubscription(userId);
   }
 
+  @Get('admin/stats')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get subscription statistics (admin only)' })
+  async getAdminStats() {
+    return this.subscriptionsService.getSubscriptionStats();
+  }
+
   @Get('user/:userId/subscriptions')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -134,7 +151,9 @@ export class SubscriptionsController {
   @Roles('ADMIN')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cancel a subscription (admin only)' })
-  async cancelSubscription(@Param('subscriptionId', ParseIntPipe) subscriptionId: number) {
+  async cancelSubscription(
+    @Param('subscriptionId', ParseIntPipe) subscriptionId: number,
+  ) {
     return this.subscriptionsService.cancelSubscription(subscriptionId);
   }
 
@@ -146,4 +165,4 @@ export class SubscriptionsController {
   async getSubscriptionStats() {
     return this.subscriptionsService.getSubscriptionStats();
   }
-} 
+}

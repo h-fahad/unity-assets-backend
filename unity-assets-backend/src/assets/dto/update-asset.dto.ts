@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsNumber, IsUrl, IsArray, IsInt, Min, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsArray,
+  IsInt,
+  Min,
+  IsBoolean,
+} from 'class-validator';
 
 export class UpdateAssetDto {
   @IsOptional()
@@ -13,10 +20,6 @@ export class UpdateAssetDto {
   @IsInt()
   @Min(1)
   categoryId?: number;
-
-  @IsOptional()
-  @IsNumber()
-  price?: number;
 
   @IsOptional()
   @IsString()
@@ -34,4 +37,4 @@ export class UpdateAssetDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
-} 
+}

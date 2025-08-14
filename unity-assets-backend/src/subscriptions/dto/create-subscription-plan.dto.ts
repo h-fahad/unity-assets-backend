@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsNumber, Min, IsOptional, IsArray, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsOptional,
+  IsArray,
+  IsEnum,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSubscriptionPlanDto {
@@ -37,4 +45,4 @@ export class CreateSubscriptionPlanDto {
   @IsString({ each: true })
   @IsOptional()
   features?: string[];
-} 
+}

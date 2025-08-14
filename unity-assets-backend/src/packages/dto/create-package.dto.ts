@@ -1,4 +1,12 @@
-import { IsString, IsNumber, IsOptional, IsArray, IsEnum, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsArray,
+  IsEnum,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { BillingCycle } from '@prisma/client';
 
@@ -33,9 +41,13 @@ export class CreatePackageDto {
   @Min(0)
   dailyDownloadLimit: number;
 
-  @ApiProperty({ description: 'Package features', type: [String], required: false })
+  @ApiProperty({
+    description: 'Package features',
+    type: [String],
+    required: false,
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   features?: string[];
-} 
+}

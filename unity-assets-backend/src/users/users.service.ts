@@ -51,7 +51,11 @@ export class UsersService {
     return user;
   }
 
-  async findAll(includeInactive: boolean = false, page: number = 1, limit: number = 50) {
+  async findAll(
+    includeInactive: boolean = false,
+    page: number = 1,
+    limit: number = 50,
+  ) {
     const skip = (page - 1) * limit;
 
     const [users, total] = await Promise.all([
@@ -147,6 +151,12 @@ export class UsersService {
           take: 1,
           orderBy: { createdAt: 'desc' },
         },
+        _count: {
+          select: {
+            downloads: true,
+            assets: true,
+          },
+        },
       },
     });
 
@@ -187,7 +197,7 @@ export class UsersService {
     }
 
     await this.findOne(id);
-    
+
     const activeSubscriptions = await this.prisma.userSubscription.count({
       where: {
         userId: id,
@@ -207,7 +217,7 @@ export class UsersService {
 
   async deactivateUser(id: number): Promise<any> {
     const user = await this.findOne(id);
-    
+
     await this.prisma.userSubscription.updateMany({
       where: {
         userId: id,
@@ -233,7 +243,7 @@ export class UsersService {
 
   async activateUser(id: number): Promise<any> {
     await this.findOne(id);
-    
+
     return this.prisma.user.update({
       where: { id },
       data: { isActive: true },
@@ -251,7 +261,7 @@ export class UsersService {
 
   async changeRole(id: number, role: Role): Promise<any> {
     await this.findOne(id);
-    
+
     return this.prisma.user.update({
       where: { id },
       data: { role },

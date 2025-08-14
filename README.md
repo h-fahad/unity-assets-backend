@@ -15,7 +15,7 @@ This is a full-stack marketplace where:
 - **Backend**: NestJS + PostgreSQL + Prisma ORM
 - **Frontend**: Next.js + Tailwind CSS + TypeScript
 - **Authentication**: JWT-based with role management
-- **File Storage**: Local storage with static file serving
+- **File Storage**: AWS S3 with local fallback
 - **State Management**: Zustand for client state
 
 ## 📋 Prerequisites
@@ -89,6 +89,7 @@ For detailed setup instructions with troubleshooting:
 
 - **Backend**: See [unity-assets-backend/README.md](./unity-assets-backend/README.md)
 - **Frontend**: See [unity-assets-next-app/README.md](./unity-assets-next-app/README.md)
+- **AWS S3 Setup**: See [unity-assets-backend/S3_SETUP.md](./unity-assets-backend/S3_SETUP.md)
 
 ## 🎯 Usage Flow
 
@@ -118,9 +119,10 @@ For detailed setup instructions with troubleshooting:
 - **Asset Management** - Upload with images/videos + Unity packages
 - **Subscription System** - Plans with daily download limits
 - **Download Tracking** - Enforces daily limits per user
-- **File Upload** - Handles multiple file types securely
+- **File Storage** - AWS S3 with automatic local fallback
 - **Admin Panel** - Asset upload and management
 - **Daily Reset** - Download limits reset automatically
+- **Migration Tools** - Migrate existing files to S3
 
 ### 🔄 Database Schema
 ```
@@ -219,6 +221,13 @@ DATABASE_URL="postgresql://user:pass@localhost:5432/unity_assets_db"
 JWT_SECRET="your-super-secret-jwt-key"
 PORT=3001
 CORS_ORIGIN="http://localhost:3000"
+
+# Optional: AWS S3 Configuration (enables S3 storage)
+AWS_ACCESS_KEY_ID="your-aws-access-key-id"
+AWS_SECRET_ACCESS_KEY="your-aws-secret-access-key"
+AWS_REGION="us-east-1"
+AWS_S3_BUCKET_NAME="your-s3-bucket-name"
+AWS_CLOUDFRONT_DOMAIN="your-cloudfront-domain.cloudfront.net"  # Optional
 ```
 
 ### Frontend `.env.local`

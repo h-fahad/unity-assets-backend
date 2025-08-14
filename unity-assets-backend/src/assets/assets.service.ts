@@ -1,13 +1,27 @@
-import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
+import { S3Service } from '../s3/s3.service';
 
 @Injectable()
 export class AssetsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly s3Service: S3Service,
+  ) {}
 
-  async findAll(categoryId?: number, page: number = 1, limit: number = 20, includeInactive: boolean = false) {
+  async findAll(
+    categoryId?: number,
+    page: number = 1,
+    limit: number = 20,
+    includeInactive: boolean = false,
+  ) {
     const skip = (page - 1) * limit;
 
     const where: any = includeInactive ? {} : { isActive: true };
@@ -60,10 +74,9 @@ export class AssetsService {
     });
 
     return this.prisma.asset.create({
-      data: { 
-        ...dto, 
+      data: {
+        ...dto,
         uploadedById,
-        price: parseFloat(dto.price as any) || 0,
         fileUrl: dto.fileUrl || '',
         thumbnail: dto.thumbnail || '',
         tags: dto.tags || [],
@@ -96,13 +109,39 @@ export class AssetsService {
 
   async remove(id: number) {
     const asset = await this.findOne(id);
-    
+
     const downloadCount = await this.prisma.download.count({
       where: { assetId: id },
     });
 
     if (downloadCount > 0) {
-      throw new ConflictException('Cannot delete asset with existing downloads. Deactivate instead.');
+      throw new ConflictException(
+        'Cannot delete asset with existing downloads. Deactivate instead.',
+      );
+    }
+
+    // Delete files from S3 if they exist
+    if (process.env.AWS_S3_BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID) {
+      try {
+        if (asset.thumbnail) {
+          const thumbnailKey = this.s3Service.extractKeyFromUrl(
+            asset.thumbnail,
+          );
+          if (thumbnailKey) {
+            await this.s3Service.deleteFile(thumbnailKey);
+          }
+        }
+
+        if (asset.fileUrl) {
+          const fileKey = this.s3Service.extractKeyFromUrl(asset.fileUrl);
+          if (fileKey) {
+            await this.s3Service.deleteFile(fileKey);
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to delete files from S3:', error);
+        // Continue with database deletion even if S3 deletion fails
+      }
     }
 
     return this.prisma.asset.delete({ where: { id } });
@@ -124,7 +163,12 @@ export class AssetsService {
     });
   }
 
-  async search(query: string, categoryId?: number, page: number = 1, limit: number = 20) {
+  async search(
+    query: string,
+    categoryId?: number,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     const skip = (page - 1) * limit;
 
     const where: any = {
@@ -194,7 +238,11 @@ export class AssetsService {
     });
   }
 
-  async getAssetsByCategory(categoryId: number, page: number = 1, limit: number = 20) {
+  async getAssetsByCategory(
+    categoryId: number,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     return this.findAll(categoryId, page, limit);
   }
 
@@ -246,7 +294,7 @@ export class AssetsService {
           categoryName: category?.name || 'Unknown',
           count: item._count.id,
         };
-      })
+      }),
     );
 
     return {
@@ -260,7 +308,7 @@ export class AssetsService {
   // Legacy method for backward compatibility
   async download(assetId: number, userId: number) {
     const asset = await this.findOne(assetId);
-    
+
     const activeSubscription = await this.prisma.userSubscription.findFirst({
       where: {
         userId,
@@ -271,7 +319,9 @@ export class AssetsService {
     });
 
     if (!activeSubscription) {
-      throw new ForbiddenException('You need an active subscription to download assets');
+      throw new ForbiddenException(
+        'You need an active subscription to download assets',
+      );
     }
 
     const today = new Date();
@@ -291,7 +341,7 @@ export class AssetsService {
 
     if (todayDownloads >= activeSubscription.plan.dailyDownloadLimit) {
       throw new ForbiddenException(
-        `Daily download limit of ${activeSubscription.plan.dailyDownloadLimit} reached. Try again tomorrow.`
+        `Daily download limit of ${activeSubscription.plan.dailyDownloadLimit} reached. Try again tomorrow.`,
       );
     }
 
@@ -315,7 +365,8 @@ export class AssetsService {
       downloadUrl: asset.fileUrl,
       asset,
       message: 'Download started',
-      remainingDownloads: activeSubscription.plan.dailyDownloadLimit - todayDownloads - 1,
+      remainingDownloads:
+        activeSubscription.plan.dailyDownloadLimit - todayDownloads - 1,
     };
   }
 
@@ -358,8 +409,11 @@ export class AssetsService {
       subscriptionPlan: activeSubscription.plan.name,
       dailyLimit: activeSubscription.plan.dailyDownloadLimit,
       downloadsToday: todayDownloads,
-      remainingDownloads: Math.max(0, activeSubscription.plan.dailyDownloadLimit - todayDownloads),
+      remainingDownloads: Math.max(
+        0,
+        activeSubscription.plan.dailyDownloadLimit - todayDownloads,
+      ),
       subscriptionEndDate: activeSubscription.endDate,
     };
   }
-} 
+}

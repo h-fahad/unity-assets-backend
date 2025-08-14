@@ -8,4 +8,4 @@ import { PrismaService } from '../common/prisma.service';
   providers: [StripeService, PrismaService],
   exports: [StripeService],
 })
-export class PaymentsModule {} 
+export class PaymentsModule {}

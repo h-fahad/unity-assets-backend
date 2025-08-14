@@ -14,4 +14,4 @@ export class AssignSubscriptionDto {
   @IsOptional()
   @IsDateString()
   startDate?: string;
-} 
+}

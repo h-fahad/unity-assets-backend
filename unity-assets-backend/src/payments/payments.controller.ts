@@ -28,14 +28,14 @@ export class PaymentsController {
     @Req() req: AuthRequest,
   ) {
     const userId = req.user.id;
-    
+
     try {
       const session = await this.stripeService.createCheckoutSession(
         userId,
         dto.planId,
         dto.billingCycle,
       );
-      
+
       return session;
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -72,10 +72,12 @@ export class PaymentsController {
     @Req() req: AuthRequest,
   ) {
     const userId = req.user.id;
-    
+
     try {
       // Create a test subscription directly in the database
-      const plan = await this.stripeService['prisma'].subscriptionPlan.findUnique({
+      const plan = await this.stripeService[
+        'prisma'
+      ].subscriptionPlan.findUnique({
         where: { id: dto.planId, isActive: true },
       });
 
@@ -86,7 +88,7 @@ export class PaymentsController {
       // Calculate dates based on billing cycle
       const startDate = new Date();
       const endDate = new Date();
-      
+
       switch (dto.billingCycle) {
         case 'WEEKLY':
           endDate.setDate(endDate.getDate() + 7);
@@ -111,7 +113,9 @@ export class PaymentsController {
       });
 
       // Create new subscription
-      const subscription = await this.stripeService['prisma'].userSubscription.create({
+      const subscription = await this.stripeService[
+        'prisma'
+      ].userSubscription.create({
         data: {
           userId,
           planId: dto.planId,
@@ -133,4 +137,4 @@ export class PaymentsController {
       throw new BadRequestException(error.message);
     }
   }
-} 
+}

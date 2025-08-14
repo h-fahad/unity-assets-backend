@@ -15,4 +15,4 @@ export class ResetPasswordDto {
 export class RequestResetDto {
   @IsEmail()
   email: string;
-} 
+}

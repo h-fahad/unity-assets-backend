@@ -1,11 +1,20 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
 
 @Injectable()
 export class DownloadsService {
   constructor(private prisma: PrismaService) {}
 
-  async downloadAsset(userId: number, assetId: number, ipAddress?: string, userAgent?: string) {
+  async downloadAsset(
+    userId: number,
+    assetId: number,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
     const asset = await this.prisma.asset.findUnique({
       where: { id: assetId, isActive: true },
     });
@@ -75,8 +84,8 @@ export class DownloadsService {
       };
     }
 
-    const activeSubscription = user.userSubscriptions.find(sub => 
-      sub.isActive && sub.endDate > new Date()
+    const activeSubscription = user.userSubscriptions.find(
+      (sub) => sub.isActive && sub.endDate > new Date(),
     );
 
     if (!activeSubscription) {
@@ -120,7 +129,11 @@ export class DownloadsService {
     };
   }
 
-  async getUserDownloadHistory(userId: number, page: number = 1, limit: number = 20) {
+  async getUserDownloadHistory(
+    userId: number,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     const skip = (page - 1) * limit;
 
     const [downloads, total] = await Promise.all([

@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsNumber, Min, IsArray, IsEnum, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  Min,
+  IsArray,
+  IsEnum,
+  IsBoolean,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateSubscriptionPlanDto {
@@ -45,4 +53,4 @@ export class UpdateSubscriptionPlanDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
-} 
+}

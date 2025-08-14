@@ -26,8 +26,13 @@
       "Bash(git add:*)",
       "Bash(ls:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npm run:*)",
+      "Bash(npx next:*)",
+      "Bash(npx tsc:*)",
+      "Bash(grep:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }

@@ -107,13 +107,16 @@ export class StripeService {
   }
 
   async handleWebhook(signature: string, payload: Buffer) {
-    console.log('Webhook received:', signature ? 'with signature' : 'without signature');
-    
+    console.log(
+      'Webhook received:',
+      signature ? 'with signature' : 'without signature',
+    );
+
     const webhookSecret = this.configService.get('STRIPE_WEBHOOK_SECRET');
     if (!webhookSecret) {
       throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
     }
-    
+
     const event = this.stripe.webhooks.constructEvent(
       payload,
       signature,
@@ -125,26 +128,28 @@ export class StripeService {
     switch (event.type) {
       case 'checkout.session.completed':
         console.log('Processing checkout.session.completed');
-        await this.handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
+        await this.handleCheckoutSessionCompleted(event.data.object);
         break;
       case 'invoice.payment_succeeded':
         console.log('Processing invoice.payment_succeeded');
-        await this.handleInvoicePaymentSucceeded(event.data.object as Stripe.Invoice);
+        await this.handleInvoicePaymentSucceeded(event.data.object);
         break;
       case 'customer.subscription.deleted':
         console.log('Processing customer.subscription.deleted');
-        await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
+        await this.handleSubscriptionDeleted(event.data.object);
         break;
     }
 
     return { received: true };
   }
 
-  private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  private async handleCheckoutSessionCompleted(
+    session: Stripe.Checkout.Session,
+  ) {
     console.log('Handling checkout session completed:', session.id);
     console.log('Session mode:', session.mode);
     console.log('Session metadata:', session.metadata);
-    
+
     if (session.mode !== 'subscription') {
       console.log('Not a subscription session, skipping');
       return;
@@ -152,7 +157,10 @@ export class StripeService {
 
     const userId = parseInt(session.metadata?.userId || '0');
     const planId = parseInt(session.metadata?.planId || '0');
-    const billingCycle = session.metadata?.billingCycle as 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+    const billingCycle = session.metadata?.billingCycle as
+      | 'WEEKLY'
+      | 'MONTHLY'
+      | 'YEARLY';
 
     console.log('Parsed data:', { userId, planId, billingCycle });
 
@@ -167,7 +175,9 @@ export class StripeService {
     );
 
     // Calculate subscription dates
-    const startDate = new Date((subscription as any).current_period_start * 1000);
+    const startDate = new Date(
+      (subscription as any).current_period_start * 1000,
+    );
     const endDate = new Date((subscription as any).current_period_end * 1000);
 
     // Deactivate any existing active subscription
@@ -189,7 +199,7 @@ export class StripeService {
       endDate,
       stripeSubscriptionId: subscription.id,
     });
-    
+
     const newSubscription = await this.prisma.userSubscription.create({
       data: {
         userId,
@@ -200,7 +210,7 @@ export class StripeService {
         stripeSubscriptionId: subscription.id,
       } as any,
     });
-    
+
     console.log('Subscription created successfully:', newSubscription.id);
   }
 
@@ -239,4 +249,4 @@ export class StripeService {
   async cancelSubscription(stripeSubscriptionId: string) {
     await this.stripe.subscriptions.cancel(stripeSubscriptionId);
   }
-} 
+}

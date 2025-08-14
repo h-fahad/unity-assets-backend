@@ -76,7 +76,6 @@ model Asset {
   id            Int        @id @default(autoincrement())
   name          String
   description   String
-  price         Float      @default(0)
   fileUrl       String
   thumbnail     String?
   tags          String[]   @default([])

@@ -8,7 +8,10 @@ export class CreateCheckoutSessionDto {
   @Type(() => Number)
   planId: number;
 
-  @ApiProperty({ description: 'Billing cycle', enum: ['WEEKLY', 'MONTHLY', 'YEARLY'] })
+  @ApiProperty({
+    description: 'Billing cycle',
+    enum: ['WEEKLY', 'MONTHLY', 'YEARLY'],
+  })
   @IsEnum(['WEEKLY', 'MONTHLY', 'YEARLY'])
   billingCycle: 'WEEKLY' | 'MONTHLY' | 'YEARLY';
-} 
+}

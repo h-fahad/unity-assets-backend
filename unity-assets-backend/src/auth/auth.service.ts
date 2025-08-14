@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../common/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -22,11 +26,11 @@ export class AuthService {
     if (existing) throw new UnauthorizedException('Email already in use');
     const hash = await bcrypt.hash(dto.password, 10);
     const user = await this.prisma.user.create({
-      data: { 
-        email: dto.email, 
-        password: hash, 
+      data: {
+        email: dto.email,
+        password: hash,
         name: dto.name,
-        role: 'USER' // Always create as USER, admins are created via seeding
+        role: 'USER', // Always create as USER, admins are created via seeding
       },
     });
     const { password, ...result } = user;
@@ -51,14 +55,19 @@ export class AuthService {
     return { access_token: token, user: userInfo };
   }
 
-  async requestPasswordReset(dto: RequestResetDto): Promise<{ message: string; resetToken: string }> {
+  async requestPasswordReset(
+    dto: RequestResetDto,
+  ): Promise<{ message: string; resetToken: string }> {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
     if (!user) {
       // Don't reveal if user exists or not for security
-      return { message: 'If the email exists, a reset link has been sent.', resetToken: '' };
+      return {
+        message: 'If the email exists, a reset link has been sent.',
+        resetToken: '',
+      };
     }
 
     // Generate a secure reset token
@@ -76,9 +85,9 @@ export class AuthService {
 
     // In a real application, you would send this token via email
     // For now, we'll return it directly (only for development)
-    return { 
-      message: 'Password reset token generated successfully.', 
-      resetToken 
+    return {
+      message: 'Password reset token generated successfully.',
+      resetToken,
     };
   }
 
@@ -113,7 +122,10 @@ export class AuthService {
     return { message: 'Password reset successfully' };
   }
 
-  async validateResetToken(email: string, resetToken: string): Promise<boolean> {
+  async validateResetToken(
+    email: string,
+    resetToken: string,
+  ): Promise<boolean> {
     const user = await this.prisma.user.findFirst({
       where: {
         email,

@@ -123,7 +123,6 @@ async function main() {
       data: {
         name: 'Medieval Knight Character',
         description: 'High-quality medieval knight character with animations',
-        price: 0,
         fileUrl: '/uploads/knight.unitypackage',
         thumbnail: '/uploads/knight-thumb.png',
         tags: ['character', 'medieval', 'knight', 'animated'],
@@ -135,7 +134,6 @@ async function main() {
       data: {
         name: 'Forest Environment Pack',
         description: 'Complete forest environment with trees, rocks, and terrain',
-        price: 0,
         fileUrl: '/uploads/forest.unitypackage',
         thumbnail: '/uploads/forest-thumb.png',
         tags: ['environment', 'forest', 'nature', 'trees'],
@@ -147,7 +145,6 @@ async function main() {
       data: {
         name: 'Magic Particle Effects',
         description: 'Collection of magical particle effects and shaders',
-        price: 0,
         fileUrl: '/uploads/magic-effects.unitypackage',
         thumbnail: '/uploads/magic-thumb.png',
         tags: ['effects', 'particles', 'magic', 'shaders'],

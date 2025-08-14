@@ -10,7 +10,12 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { PackagesService } from './packages.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -82,4 +87,4 @@ export class PackagesController {
   async toggleStatus(@Param('id', ParseIntPipe) id: number) {
     return this.packagesService.toggleStatus(id);
   }
-} 
+}

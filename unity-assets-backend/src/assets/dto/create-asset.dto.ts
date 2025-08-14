@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsArray, IsInt, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsArray,
+  IsInt,
+  Min,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateAssetDto {
@@ -10,14 +17,10 @@ export class CreateAssetDto {
   @IsNotEmpty()
   description: string;
 
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   @Min(1)
   categoryId: number;
-
-  @Transform(({ value }) => parseFloat(value))
-  @IsNumber()
-  @IsOptional()
-  price?: number;
 
   @IsOptional()
   @IsString()
@@ -31,4 +34,4 @@ export class CreateAssetDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
-} 
+}

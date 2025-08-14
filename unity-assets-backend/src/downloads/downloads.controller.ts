@@ -28,7 +28,12 @@ export class DownloadsController {
     const ipAddress = req.ip;
     const userAgent = req.get('User-Agent');
 
-    return this.downloadsService.downloadAsset(userId, assetId, ipAddress, userAgent);
+    return this.downloadsService.downloadAsset(
+      userId,
+      assetId,
+      ipAddress,
+      userAgent,
+    );
   }
 
   @Get('check-limit')
@@ -47,7 +52,11 @@ export class DownloadsController {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 20;
 
-    return this.downloadsService.getUserDownloadHistory(userId, pageNumber, limitNumber);
+    return this.downloadsService.getUserDownloadHistory(
+      userId,
+      pageNumber,
+      limitNumber,
+    );
   }
 
   @Get('my-stats')
@@ -80,7 +89,11 @@ export class DownloadsController {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 20;
 
-    return this.downloadsService.getUserDownloadHistory(userId, pageNumber, limitNumber);
+    return this.downloadsService.getUserDownloadHistory(
+      userId,
+      pageNumber,
+      limitNumber,
+    );
   }
 
   @Get('user/:userId/stats')

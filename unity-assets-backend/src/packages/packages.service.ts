@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
@@ -9,7 +13,7 @@ export class PackagesService {
 
   async findAll(includeInactive: boolean = false) {
     const where = includeInactive ? {} : { isActive: true };
-    
+
     return this.prisma.subscriptionPlan.findMany({
       where,
       orderBy: { createdAt: 'desc' },
@@ -87,13 +91,17 @@ export class PackagesService {
     });
 
     if (subscriptions.length > 0) {
-      const activeCount = subscriptions.filter(sub => sub.isActive).length;
+      const activeCount = subscriptions.filter((sub) => sub.isActive).length;
       const totalCount = subscriptions.length;
-      
+
       if (activeCount > 0) {
-        throw new BadRequestException(`Cannot delete package. There are ${activeCount} active and ${totalCount} total subscriptions using this package. Please deactivate the package instead.`);
+        throw new BadRequestException(
+          `Cannot delete package. There are ${activeCount} active and ${totalCount} total subscriptions using this package. Please deactivate the package instead.`,
+        );
       } else {
-        throw new BadRequestException(`Cannot delete package. There are ${totalCount} inactive subscriptions using this package. Please deactivate the package instead.`);
+        throw new BadRequestException(
+          `Cannot delete package. There are ${totalCount} inactive subscriptions using this package. Please deactivate the package instead.`,
+        );
       }
     }
 
@@ -112,4 +120,4 @@ export class PackagesService {
       },
     });
   }
-} 
+}

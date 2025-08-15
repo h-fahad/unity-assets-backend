@@ -3,7 +3,6 @@ services:
     name: unity-assets-backend
     env: node
     plan: starter
-    rootDir: unity-assets-backend
     buildCommand: npm install && npx prisma generate && npm run build
     startCommand: npm run start:prod
     envVars:
@@ -16,7 +15,7 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: CORS_ORIGIN
-        value: https://your-frontend-domain.onrender.com
+        value: https://unity-assets-frontend.onrender.com,http://localhost:3000,https://localhost:3000
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET

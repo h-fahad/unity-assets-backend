@@ -11,12 +11,18 @@ async function bootstrap() {
   });
 
   // Enable CORS
+  const allowedOrigins = process.env.CORS_ORIGIN ? 
+    process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()) : 
+    ['http://localhost:3000'];
+  
   app.enableCors({
     origin:
       process.env.NODE_ENV === 'production'
-        ? process.env.CORS_ORIGIN || 'http://localhost:3000'
+        ? allowedOrigins
         : true, // Allow all origins in development
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Add validation pipe

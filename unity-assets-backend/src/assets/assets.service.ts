@@ -8,12 +8,14 @@ import { PrismaService } from '../common/prisma.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
 import { S3Service } from '../s3/s3.service';
+import { ActivityService } from '../activity/activity.service';
 
 @Injectable()
 export class AssetsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly s3Service: S3Service,
+    private readonly activityService: ActivityService,
   ) {}
 
   async findAll(
@@ -73,7 +75,7 @@ export class AssetsService {
       where: { id: dto.categoryId },
     });
 
-    return this.prisma.asset.create({
+    const asset = await this.prisma.asset.create({
       data: {
         ...dto,
         uploadedById,
@@ -86,6 +88,11 @@ export class AssetsService {
         uploadedBy: { select: { id: true, email: true, name: true } },
       },
     });
+
+    // Log asset upload activity
+    await this.activityService.logAssetUpload(asset.id, asset.name, uploadedById);
+
+    return asset;
   }
 
   async update(id: number, dto: UpdateAssetDto) {

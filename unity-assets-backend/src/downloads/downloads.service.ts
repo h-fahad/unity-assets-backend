@@ -4,10 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
+import { ActivityService } from '../activity/activity.service';
 
 @Injectable()
 export class DownloadsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private activityService: ActivityService,
+  ) {}
 
   async downloadAsset(
     userId: number,
@@ -37,7 +41,7 @@ export class DownloadsService {
       },
     });
 
-    await this.prisma.asset.update({
+    const updatedAsset = await this.prisma.asset.update({
       where: { id: assetId },
       data: {
         downloadCount: {
@@ -45,6 +49,24 @@ export class DownloadsService {
         },
       },
     });
+
+    // Log download activity
+    await this.activityService.logAssetDownload(assetId, asset.name, userId);
+
+    // Check for milestone achievements
+    if (updatedAsset.downloadCount % 10 === 0 && updatedAsset.downloadCount <= 100) {
+      await this.activityService.logAssetMilestone(
+        assetId,
+        asset.name,
+        updatedAsset.downloadCount,
+      );
+    } else if (updatedAsset.downloadCount % 50 === 0) {
+      await this.activityService.logAssetMilestone(
+        assetId,
+        asset.name,
+        updatedAsset.downloadCount,
+      );
+    }
 
     return {
       download,

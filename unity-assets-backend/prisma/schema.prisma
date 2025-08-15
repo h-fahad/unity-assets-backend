@@ -21,6 +21,7 @@ model User {
   assets            Asset[]
   downloads         Download[]
   userSubscriptions UserSubscription[]
+  activities        Activity[]
 
   @@map("users")
 }
@@ -88,6 +89,7 @@ model Asset {
   category      Category   @relation(fields: [categoryId], references: [id])
   uploadedBy    User       @relation(fields: [uploadedById], references: [id])
   downloads     Download[]
+  activities    Activity[]
 
   @@unique([name, uploadedById])
   @@map("assets")
@@ -120,6 +122,22 @@ model Analytics {
   @@map("analytics")
 }
 
+model Activity {
+  id          Int          @id @default(autoincrement())
+  type        ActivityType
+  message     String
+  userId      Int?
+  assetId     Int?
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  asset       Asset?       @relation(fields: [assetId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([type])
+  @@map("activities")
+}
+
 enum Role {
   USER
   ADMIN
@@ -129,4 +147,16 @@ enum BillingCycle {
   WEEKLY
   MONTHLY
   YEARLY
+}
+
+enum ActivityType {
+  USER_REGISTERED
+  USER_SUBSCRIPTION
+  USER_SUBSCRIPTION_CANCELLED
+  ASSET_UPLOADED
+  ASSET_DOWNLOADED
+  ASSET_MILESTONE
+  PAYMENT_PROCESSED
+  SYSTEM_EVENT
+  CATEGORY_UPDATED
 }

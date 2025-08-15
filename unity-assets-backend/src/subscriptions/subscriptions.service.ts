@@ -4,13 +4,17 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
+import { ActivityService } from '../activity/activity.service';
 import { CreateSubscriptionPlanDto } from './dto/create-subscription-plan.dto';
 import { UpdateSubscriptionPlanDto } from './dto/update-subscription-plan.dto';
 import { AssignSubscriptionDto } from './dto/assign-subscription.dto';
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activityService: ActivityService,
+  ) {}
 
   async findAllPlans(includeInactive: boolean = false) {
     return this.prisma.subscriptionPlan.findMany({
@@ -227,7 +231,7 @@ export class SubscriptionsService {
   }
 
   async getSubscriptionStats() {
-    const [active, expired, total, revenue, totalDownloads] = await Promise.all([
+    const [active, expired, total, revenue, totalDownloads, recentActivity] = await Promise.all([
       this.prisma.userSubscription.count({
         where: {
           isActive: true,
@@ -242,7 +246,15 @@ export class SubscriptionsService {
       this.prisma.userSubscription.count(),
       this.calculateTotalRevenue(),
       this.prisma.download.count(),
+      this.activityService.getRecentActivities(15),
     ]);
+
+    // Format activities for frontend
+    const formattedActivity = recentActivity.map(activity => ({
+      type: activity.type.toLowerCase(),
+      message: activity.message,
+      timestamp: activity.createdAt.toISOString(),
+    }));
 
     return {
       active,
@@ -250,6 +262,7 @@ export class SubscriptionsService {
       total,
       revenue,
       totalDownloads,
+      recentActivity: formattedActivity,
     };
   }
 

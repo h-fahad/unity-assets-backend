@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../common/prisma.service';
+import { ActivityService } from '../activity/activity.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -17,6 +18,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly activityService: ActivityService,
   ) {}
 
   async register(dto: RegisterDto): Promise<Omit<User, 'password'>> {
@@ -33,6 +35,10 @@ export class AuthService {
         role: 'USER', // Always create as USER, admins are created via seeding
       },
     });
+    
+    // Log user registration activity
+    await this.activityService.logUserRegistration(user.id, user.email);
+    
     const { password, ...result } = user;
     return result;
   }

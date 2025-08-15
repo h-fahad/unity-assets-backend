@@ -12,6 +12,7 @@ import { DownloadsModule } from './downloads/downloads.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { PackagesModule } from './packages/packages.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PaymentsModule } from './payments/payments.module';
     AnalyticsModule,
     PackagesModule,
     PaymentsModule,
+    ActivityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

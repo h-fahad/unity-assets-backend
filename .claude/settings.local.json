@@ -30,7 +30,10 @@
       "Bash(npm run:*)",
       "Bash(npx next:*)",
       "Bash(npx tsc:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(timeout 5s npm run start:dev)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

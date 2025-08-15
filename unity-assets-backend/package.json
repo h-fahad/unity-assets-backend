@@ -22,6 +22,10 @@
     "create-admin": "ts-node scripts/create-admin.ts",
     "create-admin-auto": "ts-node scripts/create-admin-auto.ts",
     "migrate-to-s3": "ts-node scripts/migrate-to-s3.ts",
+    "backup": "ts-node scripts/backup-database.ts",
+    "restore": "ts-node scripts/restore-database.ts",
+    "safe-migrate": "ts-node scripts/safe-migrate.ts",
+    "verify-data": "ts-node scripts/verify-data-integrity.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

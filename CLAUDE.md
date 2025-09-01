@@ -1,4 +1,25 @@
-# Claude Code Assistant - Data Preservation Rules
+# Claude Code Assistant - Unity Assets Project
+
+## ⚠️ IMPORTANT: BACKEND SELECTION
+
+**WE ARE USING THE MERN BACKEND** (`unity-assets-mern-backend/`)
+- Main backend: `unity-assets-mern-backend/` (MongoDB + Express + Node.js)
+- Frontend: `unity-assets-next-app/` (Next.js)
+- The `unity-assets-backend/` folder contains an old NestJS backend and should be ignored/removed
+
+## 🚀 Quick Start Commands
+
+### Backend (MERN)
+```bash
+cd unity-assets-mern-backend
+npm run dev  # Runs on port 3001
+```
+
+### Frontend
+```bash
+cd unity-assets-next-app
+npm run dev  # Runs on port 3000 (or next available)
+```
 
 ## 🔒 CRITICAL DATA PRESERVATION PROTOCOL
 

@@ -33,7 +33,15 @@
       "Bash(grep:*)",
       "Bash(npx ts-node:*)",
       "Bash(timeout 5s npm run start:dev)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(npm init:*)",
+      "Bash(mongod:*)",
+      "Bash(npx create-react-app:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd //c:*)",
+      "Bash(npm start)",
+      "Read(C:\\All-Projects\\Personal/**)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

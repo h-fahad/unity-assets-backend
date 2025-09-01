@@ -41,7 +41,8 @@
       "Bash(taskkill:*)",
       "Bash(cmd //c:*)",
       "Bash(npm start)",
-      "Read(C:\\All-Projects\\Personal/**)"
+      "Read(C:\\All-Projects\\Personal/**)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
